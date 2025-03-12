@@ -102,6 +102,43 @@ def main():
 
     filtered_df = df[mask]
 
+    # Add Summary Statistics Section
+    st.header("Summary Statistics")
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        st.metric(
+            label="Total Visits",
+            value=len(filtered_df)
+        )
+
+    with col2:
+        st.metric(
+            label="Unique Dealers Visited",
+            value=filtered_df['dealer'].nunique()
+        )
+
+
+
+    # Add Dealer Visit Summary
+    st.subheader("Dealer Visit Summary")
+    dealer_summary = filtered_df.groupby('dealer').agg({
+        'submitted_datetime': 'count',
+        'dealer_code': 'first'
+    }).reset_index()
+
+    dealer_summary.columns = ['Dealer Name', 'Number of Visits', 'Dealer Code']
+    dealer_summary = dealer_summary.sort_values('Number of Visits', ascending=False)
+
+    st.dataframe(
+        dealer_summary,
+        column_config={
+            "Dealer Name": st.column_config.TextColumn(width="medium"),
+            "Number of Visits": st.column_config.NumberColumn(width="small"),
+            "Dealer Code": st.column_config.TextColumn(width="small")
+        }
+    )
+
     # Dashboard layout
     col1, col2 = st.columns(2)
 
@@ -150,8 +187,6 @@ def main():
             'purpose', 'problems', 'positives', 'requests'
         ]].sort_values('submitted_datetime', ascending=False)
     )
-
-
 
 
 if __name__ == "__main__":
